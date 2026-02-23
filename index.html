@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Alchemy37 — Health Waiver</title>
+<!-- EmailJS SDK — free tier: 200 emails/month -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #222;
+    background: #f5f5f3;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 28px 0 20px;
+  }
+  .header .brand {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #999;
+  }
+  .header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 4px 0 6px;
+  }
+  .header p {
+    font-size: 14px;
+    color: #888;
+  }
+
+  /* Sections */
+  .section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .section h2 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+  }
+  .section h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 16px 0 8px;
+  }
+
+  /* Form fields */
+  .field {
+    margin-bottom: 14px;
+  }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 5px;
+  }
+  .field input[type="text"],
+  .field input[type="email"],
+  .field input[type="tel"],
+  .field input[type="date"],
+  .field textarea {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px;
+    font-family: inherit;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+    color: #222;
+    -webkit-appearance: none;
+    transition: border-color 0.2s;
+  }
+  .field input:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: #222;
+    background: #fff;
+  }
+  .field textarea {
+    height: 80px;
+    resize: none;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* Toggle / Yes-No questions */
+  .question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 12px;
+  }
+  .question:last-child {
+    border-bottom: none;
+  }
+  .question .q-text {
+    font-size: 15px;
+    flex: 1;
+  }
+  .toggle-group {
+    display: flex;
+    gap: 0;
+    flex-shrink: 0;
+  }
+  .toggle-group input { display: none; }
+  .toggle-group label {
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid #ddd;
+    background: #fafafa;
+    color: #888;
+    transition: all 0.2s;
+  }
+  .toggle-group label:first-of-type {
+    border-radius: 8px 0 0 8px;
+    border-right: none;
+  }
+  .toggle-group label:last-of-type {
+    border-radius: 0 8px 8px 0;
+  }
+  .toggle-group input:checked + label {
+    background: #222;
+    color: #fff;
+    border-color: #222;
+  }
+
+  /* Detail field that appears on Yes */
+  .detail-field {
+    margin-top: 8px;
+    margin-bottom: 4px;
+    display: none;
+  }
+  .detail-field.show {
+    display: block;
+  }
+  .detail-field input {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 15px;
+    font-family: inherit;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+    -webkit-appearance: none;
+  }
+  .detail-field input:focus {
+    outline: none;
+    border-color: #222;
+    background: #fff;
+  }
+
+  /* Waiver text */
+  .waiver-text {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.6;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 14px;
+    background: #f9f9f7;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    margin-bottom: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .waiver-text p {
+    margin-bottom: 10px;
+  }
+
+  /* Checkbox agreement */
+  .agree-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+  }
+  .agree-row input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    margin-top: 2px;
+    flex-shrink: 0;
+    accent-color: #222;
+  }
+  .agree-row span {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Signature pad */
+  .sig-area {
+    margin-top: 12px;
+  }
+  .sig-area canvas {
+    width: 100%;
+    height: 140px;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+    cursor: crosshair;
+    touch-action: none;
+    display: block;
+  }
+  .sig-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+  .btn-clear {
+    padding: 8px 20px;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 600;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    color: #888;
+    cursor: pointer;
+  }
+
+  /* Submit */
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    font-size: 17px;
+    font-family: inherit;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    background: #222;
+    color: #fff;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.2s;
+  }
+  .btn-submit:active {
+    opacity: 0.7;
+  }
+  .btn-submit:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+
+  /* Success screen */
+  .success {
+    display: none;
+    text-align: center;
+    padding: 80px 20px;
+  }
+  .success .check {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+  .success h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+    border: none;
+    padding: 0;
+  }
+  .success p {
+    font-size: 16px;
+    color: #888;
+    margin-bottom: 32px;
+  }
+  .btn-reset {
+    padding: 14px 40px;
+    font-size: 16px;
+    font-family: inherit;
+    font-weight: 600;
+    border: 1.5px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+    color: #222;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="formContainer">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="brand">Alchemy 37</div>
+    <h1>Health Declaration &amp; Risk Acknowledgment</h1>
+    <p>Please complete before your first class</p>
+  </div>
+
+  <form id="waiverForm" novalidate>
+
+    <!-- Personal Info -->
+    <div class="section">
+      <h2>Personal Information</h2>
+      <div class="row">
+        <div class="field">
+          <label>First Name *</label>
+          <input type="text" id="firstName" required autocomplete="given-name">
+        </div>
+        <div class="field">
+          <label>Last Name *</label>
+          <input type="text" id="lastName" required autocomplete="family-name">
+        </div>
+      </div>
+      <div class="field">
+        <label>Email *</label>
+        <input type="email" id="email" required autocomplete="email">
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Phone</label>
+          <input type="tel" id="phone" autocomplete="tel">
+        </div>
+        <div class="field">
+          <label>Date of Birth</label>
+          <input type="date" id="dob">
+        </div>
+      </div>
+    </div>
+
+    <!-- Emergency Contact -->
+    <div class="section">
+      <h2>Emergency Contact</h2>
+      <div class="row">
+        <div class="field">
+          <label>Name *</label>
+          <input type="text" id="emergName" required>
+        </div>
+        <div class="field">
+          <label>Phone *</label>
+          <input type="tel" id="emergPhone" required>
+        </div>
+      </div>
+      <div class="field">
+        <label>Relationship</label>
+        <input type="text" id="emergRelation" placeholder="e.g. Partner, Parent, Friend">
+      </div>
+    </div>
+
+    <!-- Health Questions -->
+    <div class="section">
+      <h2>Health Questionnaire</h2>
+      <p style="font-size:14px; color:#888; margin-bottom:12px;">Our classes take place in a heated studio. Please answer honestly so we can ensure your safety.</p>
+
+      <div class="question">
+        <span class="q-text">Do you have any heart conditions or cardiovascular issues?</span>
+        <div class="toggle-group">
+          <input type="radio" name="q1" id="q1y" value="yes"><label for="q1y">Yes</label>
+          <input type="radio" name="q1" id="q1n" value="no" checked><label for="q1n">No</label>
+        </div>
+      </div>
+      <div class="detail-field" data-for="q1">
+        <input type="text" placeholder="Please describe...">
+      </div>
+
+      <div class="question">
+        <span class="q-text">Do you have high or low blood pressure?</span>
+        <div class="toggle-group">
+          <input type="radio" name="q2" id="q2y" value="yes"><label for="q2y">Yes</label>
+          <input type="radio" name="q2" id="q2n" value="no" checked><label for="q2n">No</label>
+        </div>
+      </div>
+      <div class="detail-field" data-for="q2">
+        <input type="text" placeholder="High or low? Any medication?">
+      </div>
+
+      <div class="question">
+        <span class="q-text">Are you pregnant or have you recently given birth?</span>
+        <div class="toggle-group">
+          <input type="radio" name="q3" id="q3y" value="yes"><label for="q3y">Yes</label>
+          <input type="radio" name="q3" id="q3n" value="no" checked><label for="q3n">No</label>
+        </div>
+      </div>
+      <div class="detail-field" data-for="q3">
+        <input type="text" placeholder="How many weeks / months postpartum?">
+      </div>
+
+      <div class="question">
+        <span class="q-text">Do you have diabetes or blood sugar issues?</span>
+        <div class="toggle-group">
+          <input type="radio" name="q4" id="q4y" value="yes"><label for="q4y">Yes</label>
+          <input type="radio" name="q4" id="q4n" value="no" checked><label for="q4n">No</label>
+        </div>
+      </div>
+      <div class="detail-field" data-for="q4">
+        <input type="text" placeholder="Type 1, Type 2, or other?">
+      </div>
+
+      <div class="question">
+        <span class="q-text">Do you have any injuries, joint issues, or recent surgeries?</span>
+        <div class="toggle-group">
+          <input type="radio" name="q5" id="q5y" value="yes"><label for="q5y">Yes</label>
+          <input type="radio" name="q5" id="q5n" value="no" checked><label for="q5n">No</label>
+        </div>
+      </div>
+      <div class="detail-field" data-for="q5">
+        <input type="text" placeholder="Please describe the injury / surgery...">
+      </div>
+
+      <div class="question">
+        <span class="q-text">Do you have asthma or any respiratory conditions?</span>
+        <div class="toggle-group">
+          <input type="radio" name="q6" id="q6y" value="yes"><label for="q6y">Yes</label>
+          <input type="radio" name="q6" id="q6n" value="no" checked><label for="q6n">No</label>
+        </div>
+      </div>
+      <div class="detail-field" data-for="q6">
+        <input type="text" placeholder="Please describe...">
+      </div>
+
+      <div class="question">
+        <span class="q-text">Have you ever experienced dizziness, fainting, or heat-related illness?</span>
+        <div class="toggle-group">
+          <input type="radio" name="q7" id="q7y" value="yes"><label for="q7y">Yes</label>
+          <input type="radio" name="q7" id="q7n" value="no" checked><label for="q7n">No</label>
+        </div>
+      </div>
+      <div class="detail-field" data-for="q7">
+        <input type="text" placeholder="Please describe...">
+      </div>
+
+      <div class="question">
+        <span class="q-text">Are you currently taking any medication?</span>
+        <div class="toggle-group">
+          <input type="radio" name="q8" id="q8y" value="yes"><label for="q8y">Yes</label>
+          <input type="radio" name="q8" id="q8n" value="no" checked><label for="q8n">No</label>
+        </div>
+      </div>
+      <div class="detail-field" data-for="q8">
+        <input type="text" placeholder="Which medication(s)?">
+      </div>
+
+      <div class="question">
+        <span class="q-text">Any other medical conditions we should know about?</span>
+        <div class="toggle-group">
+          <input type="radio" name="q9" id="q9y" value="yes"><label for="q9y">Yes</label>
+          <input type="radio" name="q9" id="q9n" value="no" checked><label for="q9n">No</label>
+        </div>
+      </div>
+      <div class="detail-field" data-for="q9">
+        <input type="text" placeholder="Please describe...">
+      </div>
+    </div>
+
+    <!-- Risk Acknowledgment & Informed Consent -->
+    <div class="section">
+      <h2>Acknowledgment of Risk &amp; Informed Consent</h2>
+
+      <div class="waiver-text">
+        <p><strong>Nature of Activities:</strong> Alchemy37 offers fitness classes (including pilates, strength, and cardio) in a <strong>heated studio environment</strong>. The combination of physical exercise and elevated temperatures places additional demands on the body.</p>
+
+        <p><strong>Inherent Risks:</strong> I understand that physical exercise — particularly in a heated environment — carries inherent risks that exist regardless of the care taken by instructors and staff. These include, but are not limited to: muscle strains, sprains, joint injuries, dehydration, dizziness, fainting, heat exhaustion, and overexertion. These are risks that come with physical activity itself and are not caused by the studio or its staff.</p>
+
+        <p><strong>Personal Responsibility:</strong> I understand that I am responsible for exercising within my own limits. I will stop or modify any exercise if I feel pain, discomfort, dizziness, or nausea. I will hydrate adequately before, during, and after class. I will leave the heated room if I feel unwell at any point.</p>
+
+        <p><strong>Health Declaration:</strong> I confirm that the health information I have provided above is accurate and complete. If I have any medical conditions, I confirm that I have consulted with a medical professional and have been cleared to participate in heated fitness classes. I agree to inform an instructor of any health concerns before each class.</p>
+
+        <p><strong>Duty to Inform:</strong> I agree to notify Alchemy37 immediately if my health status changes in any way that may affect my ability to safely participate in classes.</p>
+
+        <p><strong>Studio Policies:</strong> I agree to follow all studio rules and instructor guidance, including the no-phone policy in the hot room, arriving on time, and following all hygiene and sanitation procedures.</p>
+
+        <p><strong>Photo &amp; Media:</strong> I consent to the use of photographs or videos taken during classes or studio events for Alchemy37's marketing and social media. I understand I can withdraw this consent at any time by notifying the studio in writing.</p>
+
+        <p><strong>Data Protection:</strong> I consent to Alchemy37 storing the personal and health information provided in this form for the purpose of ensuring my safety during classes. This data will be kept confidential, used only for studio operations, and can be deleted upon my written request.</p>
+      </div>
+
+      <div class="agree-row">
+        <input type="checkbox" id="agreeRisk" required>
+        <span>I understand and accept the inherent risks of participating in heated fitness classes as described above. *</span>
+      </div>
+      <div class="agree-row">
+        <input type="checkbox" id="agreeHealth" required>
+        <span>I confirm that all health information I have provided is accurate and complete, and I take responsibility for exercising within my own limits. *</span>
+      </div>
+      <div class="agree-row">
+        <input type="checkbox" id="agreeData" required>
+        <span>I consent to the storage and processing of my personal and health data for safety purposes as described above. *</span>
+      </div>
+      <div class="agree-row">
+        <input type="checkbox" id="agreeAge" required>
+        <span>I confirm that I am at least 18 years of age (or have parental/guardian consent). *</span>
+      </div>
+    </div>
+
+    <!-- Signature -->
+    <div class="section">
+      <h2>Signature</h2>
+      <p style="font-size:14px; color:#888; margin-bottom:8px;">Please sign below with your finger.</p>
+      <div class="sig-area">
+        <canvas id="sigCanvas"></canvas>
+        <div class="sig-actions">
+          <button type="button" class="btn-clear" onclick="clearSig()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn-submit">Submit Waiver</button>
+
+  </form>
+</div>
+
+<!-- Success Screen -->
+<div class="container success" id="successScreen">
+  <div class="check">&#10003;</div>
+  <h2>Thank You!</h2>
+  <p>Your health waiver has been submitted.<br>Welcome to Alchemy37 — enjoy your class!</p>
+  <button class="btn-reset" onclick="resetForm()">Next Person</button>
+</div>
+
+<script>
+  // ---- Signature Pad ----
+  const canvas = document.getElementById('sigCanvas');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let hasSigned = false;
+
+  function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    ctx.strokeStyle = '#222';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches ? e.touches[0] : e;
+    return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+  }
+
+  canvas.addEventListener('mousedown', (e) => { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); });
+  canvas.addEventListener('mousemove', (e) => { if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); hasSigned = true; });
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+
+  canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); }, { passive: false });
+  canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); hasSigned = true; }, { passive: false });
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearSig() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    hasSigned = false;
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  // ---- Toggle Yes/No detail fields ----
+  document.querySelectorAll('.toggle-group input').forEach(radio => {
+    radio.addEventListener('change', function() {
+      const name = this.name;
+      const detail = document.querySelector(`.detail-field[data-for="${name}"]`);
+      if (detail) {
+        if (this.value === 'yes') {
+          detail.classList.add('show');
+          detail.querySelector('input').focus();
+        } else {
+          detail.classList.remove('show');
+          detail.querySelector('input').value = '';
+        }
+      }
+    });
+  });
+
+  // ---- EmailJS Config ----
+  // TODO: Replace these with your actual EmailJS IDs (see setup instructions below)
+  const EMAILJS_PUBLIC_KEY = 'SqwAlIqgh82QQvvB1';
+  const EMAILJS_SERVICE_ID = 'service_mneoshd';
+  const EMAILJS_TEMPLATE_ID = 'template_ys3j1zn';
+
+  // Initialize EmailJS
+  if (EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+  }
+
+  // Health question labels for the email
+  const healthQuestions = {
+    q1: 'Heart conditions / cardiovascular',
+    q2: 'High or low blood pressure',
+    q3: 'Pregnant / recently given birth',
+    q4: 'Diabetes / blood sugar',
+    q5: 'Injuries / joint issues / recent surgery',
+    q6: 'Asthma / respiratory conditions',
+    q7: 'Dizziness / fainting / heat illness',
+    q8: 'Currently taking medication',
+    q9: 'Other medical conditions',
+  };
+
+  // ---- Form submission ----
+  document.getElementById('waiverForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Basic validation
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const emergName = document.getElementById('emergName').value.trim();
+    const emergPhone = document.getElementById('emergPhone').value.trim();
+
+    if (!firstName || !lastName || !email || !emergName || !emergPhone) {
+      alert('Please fill in all required fields marked with *');
+      return;
+    }
+
+    if (!document.getElementById('agreeRisk').checked ||
+        !document.getElementById('agreeHealth').checked ||
+        !document.getElementById('agreeData').checked ||
+        !document.getElementById('agreeAge').checked) {
+      alert('Please agree to all checkboxes before submitting.');
+      return;
+    }
+
+    if (!hasSigned) {
+      alert('Please provide your signature.');
+      return;
+    }
+
+    // Disable submit button while processing
+    const submitBtn = document.querySelector('.btn-submit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    // Build health summary for email
+    let healthSummary = '';
+    for (let i = 1; i <= 9; i++) {
+      const checked = document.querySelector(`input[name="q${i}"]:checked`);
+      const detail = document.querySelector(`.detail-field[data-for="q${i}"] input`);
+      const answer = checked ? checked.value : 'no';
+      const detailText = detail ? detail.value : '';
+      if (answer === 'yes') {
+        healthSummary += `• ${healthQuestions['q'+i]}: YES` + (detailText ? ` — ${detailText}` : '') + '\n';
+      }
+    }
+    if (!healthSummary) {
+      healthSummary = '• No health concerns reported.';
+    }
+
+    const submissionDate = new Date().toLocaleString('en-GB', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+
+    // Email template params (these match the template variables in EmailJS)
+    const templateParams = {
+      member_name: `${firstName} ${lastName}`,
+      member_email: email,
+      member_phone: document.getElementById('phone').value || 'Not provided',
+      member_dob: document.getElementById('dob').value || 'Not provided',
+      emergency_name: emergName,
+      emergency_phone: emergPhone,
+      emergency_relation: document.getElementById('emergRelation').value || 'Not provided',
+      health_summary: healthSummary,
+      submission_date: submissionDate,
+    };
+
+    // Also store locally as backup
+    const localData = {
+      ...templateParams,
+      timestamp: new Date().toISOString(),
+      signature: canvas.toDataURL('image/png'),
+    };
+    try {
+      const existing = JSON.parse(localStorage.getItem('a37_waivers') || '[]');
+      existing.push(localData);
+      localStorage.setItem('a37_waivers', JSON.stringify(existing));
+    } catch(err) {
+      console.error('Local storage error:', err);
+    }
+
+    // Send email (or skip if not configured)
+    if (EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+        .then(() => {
+          showSuccess();
+        })
+        .catch((err) => {
+          console.error('Email error:', err);
+          // Still show success — data saved locally
+          showSuccess();
+        });
+    } else {
+      // EmailJS not configured yet — just save locally
+      console.log('EmailJS not configured. Data saved locally only.', templateParams);
+      showSuccess();
+    }
+  });
+
+  function showSuccess() {
+    const submitBtn = document.querySelector('.btn-submit');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Waiver';
+    document.getElementById('formContainer').style.display = 'none';
+    document.getElementById('successScreen').style.display = 'block';
+  }
+
+  function resetForm() {
+    document.getElementById('waiverForm').reset();
+    clearSig();
+    hasSigned = false;
+    // Reset all detail fields
+    document.querySelectorAll('.detail-field').forEach(d => {
+      d.classList.remove('show');
+      d.querySelector('input').value = '';
+    });
+    document.getElementById('successScreen').style.display = 'none';
+    document.getElementById('formContainer').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+</script>
+
+</body>
+</html>
